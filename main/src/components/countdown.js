@@ -11,9 +11,10 @@ class Countdown extends React.Component {
             seconds: 0,
             minutes: 0,
             hours: 0,
+            
         }
-        this.count = 0;
         this.timerID = null;
+        this.count = 0;
 
     };
 
@@ -46,6 +47,34 @@ class Countdown extends React.Component {
             })
         }
     };
+    componentDidUpdate(){
+        if(this.state.isCountActiv && !this.state.isCountPaused){
+            this.getTime()
+        }
+        if(!this.state.isCountActiv && this.state.isCountPaused){
+            this.clearTime()
+        }
+    }
+    clearTime = () => {
+        clearInterval(this.timerID);
+        this.count = 0;
+    }
+    getTime = () => {
+        
+        if(this.count === 0){
+            this.timerID = setInterval(() => {
+                console.log(this.state.seconds);
+                this.setState((prev) => {
+                    return {
+                        seconds:prev.seconds >= 1 ? prev.seconds - 1 : (prev.hours >= 1 || prev.minutes >=1) ? 59 : 0,
+                        minutes: (prev.minutes >= 1 && prev.seconds === 0) ? prev.minutes - 1 : prev.hours >= 1 ? 58 : prev.minutes, // bug when minutes reaches 58
+                        hours: (prev.hours >= 1 && prev.minutes === 0 && prev.seconds === 0) ? prev.hours - 1 : prev.hours,
+                    }
+                })
+            }, 1000);
+        }
+        this.count++;
+    }
     handleIncDecClick = (value) => {
         // if(this.state.seconds && this.state.minutes && this.state.seconds){
         if(value === "incHour"){
@@ -68,6 +97,7 @@ class Countdown extends React.Component {
                     minutes:prev.minutes <=58 ? prev.minutes + 1 : 0,
                     hours: prev.minutes === 59 ? prev.hours + 1 : prev.hours,
                 }
+                
             })
         }
         if(value === "decMin"){
@@ -82,8 +112,8 @@ class Countdown extends React.Component {
             this.setState((prev) => {
                 return {
                     seconds:prev.seconds <=58 ? prev.seconds + 1 : 0,
-                    minutes: prev.seconds === 59 && prev.minutes <= 58 ? prev.minutes + 1 : 0, //bug
-                    hours: prev.minutes === 59   && prev.seconds === 59 ? prev.hours + 1 : prev.hours,
+                    minutes: prev.seconds === 59 && prev.minutes <= 58 ? prev.minutes + 1 : prev.minutes === 59 ? 0 : prev.minutes, //bug
+                    hours: prev.minutes  === 59 && prev.seconds <=1 ? prev.hours + 1 : prev.hours,
                 }
             })
         }
@@ -91,8 +121,8 @@ class Countdown extends React.Component {
             this.setState((prev) => {
                 return {
                     seconds:prev.seconds >= 1 ? prev.seconds - 1 : (prev.hours >= 1 || prev.minutes >=1) ? 59 : 0,
-                    minutes: (prev.minutes >= 1 && prev.seconds === 0) ? prev.minutes - 1 : prev.hours >= 1 ? 59 : 0,
-                    hours: (prev.hours >= 1 && prev.minutes === 0) ? prev.hours - 1 : 0,
+                    minutes: (prev.minutes >= 1 && prev.seconds === 0) ? prev.minutes - 1 : prev.hours >= 1 ? 59 : prev.minutes,
+                    hours: (prev.hours >= 1 && prev.minutes === 0 && prev.seconds === 0) ? prev.hours - 1 : prev.hours,
                 }
             })
         }
